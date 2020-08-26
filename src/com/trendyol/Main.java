@@ -16,8 +16,12 @@ import com.trendyol.product.Product;
 public class Main {
 
 	public static void main(String[] args) {
+		
+		// Important Note: I would normally use BigDecimal for currency calculations
+		// For the sake of code simplicity, I used Double values in whole application
+		// As I recall, Double values are precise enough for two decimal places, so it shall be okay
 
-		// Create a delivery cost calculator and apply to the shopping cart
+		// Create a delivery cost calculator
 		DeliveryCostCalculator calculator = new DeliveryCostCalculator(2.0, 0.5, 2.99);
 		
 		// Create a new empty shopping cart
@@ -55,8 +59,8 @@ public class Main {
 		
 		// Create campaigns for each category (2 applicable)
 		Campaign bookCampaign = new Campaign(booksCategory, 20.0, 5, DiscountType.RATE);
-		Campaign movieCampaign = new Campaign(booksCategory, 25.0, 10, DiscountType.RATE);
-		Campaign videoGameCampaign = new Campaign(booksCategory, 15.0, 5, DiscountType.AMOUNT);
+		Campaign movieCampaign = new Campaign(moviesCategory, 25.0, 10, DiscountType.RATE);
+		Campaign videoGameCampaign = new Campaign(videoGamesCategory, 15.0, 5, DiscountType.AMOUNT);
 		
 		// Create a coupon
 		Coupon coupon = new Coupon(300.0, 25.0, DiscountType.AMOUNT);

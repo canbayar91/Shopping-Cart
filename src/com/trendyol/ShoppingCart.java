@@ -25,6 +25,9 @@ import com.trendyol.product.Product;
  */
 public class ShoppingCart {
 	
+	// Epsilon value for double precision comparison
+	public static final double EPSILON = 0.001;
+	
 	// Formatter for outputting currency values
 	private static NumberFormat currencyFormat = NumberFormat.getCurrencyInstance();
 	
@@ -166,19 +169,23 @@ public class ShoppingCart {
 	 */
 	public double getCouponDiscount() {
 		
-		// Only apply for valid cases
-		// Note: An epsilon check for floating point comparison could be beneficial
-		double priceAfterCampaigns = totalPrice - getCampaignDiscount();
-		if (coupon != null && priceAfterCampaigns > coupon.getMinPriceTotal()) {
+		// Only apply if a coupon is applied
+		if (coupon != null) {
 			
-			// For DiscountType.RATE, calculate the discount by percentage 
-			DiscountType discountType = coupon.getDiscountType();
-			if (discountType == DiscountType.RATE) {
-				return priceAfterCampaigns * coupon.getDiscount() / 100;
+			// Check coupon validity
+			double priceAfterCampaigns = totalPrice - getCampaignDiscount();
+			double minPriceTotal = coupon.getMinPriceTotal();
+			if (priceAfterCampaigns >= minPriceTotal || Math.abs(priceAfterCampaigns - minPriceTotal) < EPSILON) {
+				
+				// For DiscountType.RATE, calculate the discount by percentage 
+				DiscountType discountType = coupon.getDiscountType();
+				if (discountType == DiscountType.RATE) {
+					return priceAfterCampaigns * coupon.getDiscount() / 100;
+				}
+				
+				// Otherwise, return the discount amount directly
+				return coupon.getDiscount();
 			}
-			
-			// Otherwise, return the discount amount directly
-			return coupon.getDiscount();
 		}
 		
 		// No discount will be applied
@@ -242,7 +249,7 @@ public class ShoppingCart {
 	public void print() {
 		
 		// If the cart is empty, return without printing information
-		if (totalPrice == 0) {
+		if (isEmpty()) {
 			System.out.println("Your cart is empty.");
 			return;
 		}
@@ -327,5 +334,14 @@ public class ShoppingCart {
 	 */
 	public int productCount() {
 		return cart.size();
+	}
+	
+	/**
+	 * Checks if the cart is empty
+	 * 
+	 * @return empty status
+	 */
+	public boolean isEmpty() {
+		return cart.size() == 0;
 	}
 }

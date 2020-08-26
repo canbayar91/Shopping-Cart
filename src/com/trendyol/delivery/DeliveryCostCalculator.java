@@ -38,6 +38,11 @@ public class DeliveryCostCalculator implements DeliveryMethod {
 	@Override
 	public double calculateFor(ShoppingCart cart) {
 		
+		// Handle invalid and empty cart cases
+		if (cart == null || cart.isEmpty()) {
+			return 0;
+		}
+		
 		// Take the product and category information from cart
 		int numDeliveries = cart.deliveryCount();
 		int numProducts = cart.productCount();
