@@ -16,14 +16,18 @@ import com.trendyol.product.Product;
 public class Main {
 
 	public static void main(String[] args) {
+
+		// Create a delivery cost calculator and apply to the shopping cart
+		DeliveryCostCalculator calculator = new DeliveryCostCalculator(2.0, 0.5, 2.99);
 		
 		// Create a new empty shopping cart
-		ShoppingCart shoppingCart = new ShoppingCart();
+		ShoppingCart shoppingCart = new ShoppingCart(calculator);
 		
 		// Create categories of the products
-		Category booksCategory = new Category("Books");
-		Category moviesCategory = new Category("Movies");
-		Category videoGamesCategory = new Category("Video Games");
+		Category mainCategory = new Category("Movies, Books and Games");
+		Category booksCategory = new Category("Books", mainCategory);
+		Category moviesCategory = new Category("Movies", mainCategory);
+		Category videoGamesCategory = new Category("Video Games", mainCategory);
 		
 		// Create example books
 		Product book1 = new Product("The Lord Of The Rings", 20.0, booksCategory);
@@ -60,12 +64,9 @@ public class Main {
 		// Apply the campaigns and coupons
 		shoppingCart.applyDiscounts(bookCampaign, movieCampaign, videoGameCampaign);
 		shoppingCart.applyCoupon(coupon);
-
-		// Create a delivery cost calculator and apply to the shopping cart
-		DeliveryCostCalculator calculator = new DeliveryCostCalculator(2.0, 0.5, 2.99);
 		
 		// Print the final state of the cart
-		shoppingCart.print(calculator);
+		shoppingCart.print();
 	}
 
 }

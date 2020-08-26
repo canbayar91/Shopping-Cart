@@ -49,8 +49,20 @@ public class ShoppingCart {
 	// Note: I understood only a single coupon can be applied to the cart from description
 	private Coupon coupon;
 	
+	// Delivery price calculation method of preference
+	private DeliveryMethod deliveryMethod;
+	
 	// Shortcut to the total price of all items in the cart
 	private double totalPrice = 0;
+	
+	/*
+	 * Note: I had to pass the calculator and break the given interface rules on the pseudocode in this method
+	 * Passing it on the calculation method would be my preference but print method needed it, too
+	 * It could be initialized through field injection using Spring Framework
+	 */
+	public ShoppingCart(DeliveryMethod deliveryMethod) {
+		this.deliveryMethod = deliveryMethod;
+	}
 	
 	/**
 	 * Adds the given amount of a product into the shopping cart
@@ -210,14 +222,10 @@ public class ShoppingCart {
 	
 	/**
 	 * Calculates the delivery cost for the current state of cart
-	 * Note: I had to pass the calculator and break the given interface rules on the pseudocode in this method
-	 * Another choice could be to pass it on the constructor but preferred this since calculation parameters can change
-	 * It could be initialized through field injection using Spring Framework
 	 * 
-	 * @param deliveryMethod the delivery cost calculator of choice
 	 * @return the delivery cost
 	 */
-	public double getDeliveryCost(DeliveryMethod deliveryMethod) {
+	public double getDeliveryCost() {
 		
 		// Return 0, if no delivery method is specified
 		if (deliveryMethod == null) {
@@ -230,11 +238,8 @@ public class ShoppingCart {
 	
 	/**
 	 * Print out the cart information
-	 * Note: Same here about the calculator
-	 * 
-	 * @param deliveryMethod the delivery cost calculator of choice
 	 */
-	public void print(DeliveryMethod deliveryMethod) {
+	public void print() {
 		
 		// If the cart is empty, return without printing information
 		if (totalPrice == 0) {
@@ -287,7 +292,7 @@ public class ShoppingCart {
 		System.out.println();
 		
 		// Calculate the final price
-		double shippingPrice = getDeliveryCost(deliveryMethod);
+		double shippingPrice = getDeliveryCost();
 		double totalPrice = getTotalAmountAfterDiscounts();
 		double finalPrice = totalPrice + shippingPrice;
 		
