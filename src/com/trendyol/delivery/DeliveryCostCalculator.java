@@ -7,9 +7,8 @@ import com.trendyol.ShoppingCart;
  * @since 25.08.2020
  *
  * Calculates the delivery cost for the shopping cart
- * Note: An interface can be useful in case new calculator methods are implemented
  */
-public class DeliveryCostCalculator {
+public class DeliveryCostCalculator implements DeliveryMethod {
 
 	// Delivery cost factor for a single delivery
 	private double costPerDelivery;
@@ -36,6 +35,7 @@ public class DeliveryCostCalculator {
 	 * @param cart the shopping cart
 	 * @return the delivery cost
 	 */
+	@Override
 	public double calculateFor(ShoppingCart cart) {
 		
 		// Take the product and category information from cart

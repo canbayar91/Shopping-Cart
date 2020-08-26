@@ -1,13 +1,15 @@
 package com.trendyol;
 
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
-import com.trendyol.delivery.DeliveryCostCalculator;
+import com.trendyol.delivery.DeliveryMethod;
 import com.trendyol.discount.Campaign;
 import com.trendyol.discount.Coupon;
 import com.trendyol.discount.DiscountType;
@@ -22,6 +24,13 @@ import com.trendyol.product.Product;
  * Contains all the logic of the application
  */
 public class ShoppingCart {
+	
+	// Formatter for outputting currency values
+	private static NumberFormat currencyFormat = NumberFormat.getCurrencyInstance();
+	
+	// Formatter for products and price
+	private static String productFormat = "%-25s%-10sx%-5d%s%n";
+	private static String priceFormat = "%-20s%s%n";
 	
 	// Stores the count of each added product in the cart
 	// Note: Keys could be String (product title) but instead I overridden the @{hashCode} method of Product
@@ -203,19 +212,88 @@ public class ShoppingCart {
 	 * Calculates the delivery cost for the current state of cart
 	 * Note: I had to pass the calculator and break the given interface rules on the pseudocode in this method
 	 * Another choice could be to pass it on the constructor but preferred this since calculation parameters can change
+	 * It could be initialized through field injection using Spring Framework
 	 * 
-	 * @param calculator the delivery cost calculator
+	 * @param deliveryMethod the delivery cost calculator of choice
 	 * @return the delivery cost
 	 */
-	public double getDeliveryCost(DeliveryCostCalculator calculator) {
-		return calculator.calculateFor(this);
+	public double getDeliveryCost(DeliveryMethod deliveryMethod) {
+		
+		// Return 0, if no delivery method is specified
+		if (deliveryMethod == null) {
+			return 0;
+		}
+		
+		// Calculate and return the delivery cost
+		return deliveryMethod.calculateFor(this);
 	}
 	
 	/**
 	 * Print out the cart information
+	 * Note: Same here about the calculator
+	 * 
+	 * @param deliveryMethod the delivery cost calculator of choice
 	 */
-	public void print() {
+	public void print(DeliveryMethod deliveryMethod) {
 		
+		// If the cart is empty, return without printing information
+		if (totalPrice == 0) {
+			System.out.println("Your cart is empty.");
+			return;
+		}
+		
+		// Categorize the products using streams
+		Map<Category, List<Product>> categoriedProducts = cart.keySet().stream().collect(Collectors.groupingBy(p -> p.getCategory()));
+		for (Category category : categoriedProducts.keySet()) {
+		
+			// Output the category name
+			System.out.println(category.getTitle() + ":");
+			System.out.println("------------------------------");
+			
+			// Output each product under that category
+			List<Product> productList = categoriedProducts.get(category);
+			for (Product product : productList) {
+			
+				// Acquire product information
+				String title = product.getTitle();
+				int count = cart.get(product);
+				double price = product.getPrice();
+				double total = price * count;
+				
+				// Output product information
+				System.out.printf(productFormat, title, currencyFormat.format(price), count, currencyFormat.format(total));
+			}
+			
+			// Add extra space after each category
+			System.out.println();
+		}
+		
+		// Output total price
+		System.out.printf(priceFormat, "Total Price: ", currencyFormat.format(totalPrice));
+		
+		// Output total campaign discount
+		double campaignDiscount = getCampaignDiscount();
+		if (campaignDiscount > 0) {
+			System.out.printf(priceFormat, "Campaign Discount: ", currencyFormat.format(campaignDiscount));
+		}
+
+		// Output coupon discount
+		double couponDiscount = getCouponDiscount();
+		if (couponDiscount > 0) {
+			System.out.printf(priceFormat, "Coupon Discount: ", currencyFormat.format(couponDiscount));
+		}
+		
+		// Add extra space
+		System.out.println();
+		
+		// Calculate the final price
+		double shippingPrice = getDeliveryCost(deliveryMethod);
+		double totalPrice = getTotalAmountAfterDiscounts();
+		double finalPrice = totalPrice + shippingPrice;
+		
+		// Output shipping and final price
+		System.out.printf(priceFormat, "Shipping Price: ", currencyFormat.format(shippingPrice));
+		System.out.printf(priceFormat, "Final Price: ", currencyFormat.format(finalPrice));
 	}
 	
 	/**
